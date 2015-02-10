@@ -9,8 +9,16 @@ data <- read.csv("activity.csv", header=T)
 library(dplyr)
 library(tidyr)
 
-data2[,2] <- as.Date(data2[,2], "%Y%m%d")
+data[,2] <- as.Date(data[,2], "%Y%m%d")
 
-data2 <- data %>%
-      group_by(interval) %>%
-      summarise(avg=mean(steps, na.rm=TRUE))
+#calculatings total steps each day and making a histogram
+totsteps <- data %>%
+      group_by(date) %>%
+      summarise(sum=sum(steps, na.rm=TRUE))
+
+summary(totsteps)
+
+stephist <- hist(totsteps$sum,
+                 breaks=5,
+                 main = "Frequency of Total Steps Per Day",
+                 xlab = "Total Steps")

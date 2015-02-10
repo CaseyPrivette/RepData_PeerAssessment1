@@ -5,10 +5,7 @@ output:
     keep_md: true
 ---
 
-Reproducible Research: Peer Assessment 1
-========================================
-
-This file will download data from rdpengs Github account, process the data into usable form and then answer several quesions. This assignment makes use of data from a personal activity monitoring device. This device collects data at 5 minute intervals through out the day. The data consists of two months of data from an anonymous individual collected during the months of October and November, 2012 and include the number of steps taken in 5 minute intervals each day.  
+This file will fork data from rdpeng's Github account, process the data into usable form and then answer several quesions. This assignment makes use of data from a personal activity monitoring device. This device collects data at 5 minute intervals through out the day. The data consists of two months of data from an anonymous individual collected during the months of October and November, 2012 and include the number of steps taken in 5 minute intervals each day.  
 
 The questions we will address are:
 1. What is the average number of steps taken per day
@@ -38,7 +35,33 @@ data[,2] <- as.Date(data[,2], "%Y-%m-%d")
 
 ## What is mean total number of steps taken per day?
 
+To create a summary of the total number of steps taken per day I'll load dplyr and use the group_by and summarise functions to create a new data frame totsteps.
 
+```{r stepsperday, cache=TRUE, echo=FALSE, results='hide'}
+library(dplyr)
+totsteps <- data %>%
+      group_by(date) %>%
+      summarise(sum=sum(steps, na.rm=TRUE))
+```
+```{r showsteps}
+head(totsteps)
+```
+
+Now I'll show the results on a histogram.
+
+```{r totstepshistogram, cache=TRUE}
+stephist <- hist(totsteps$sum,
+                 breaks=5,
+                 col="light blue",
+                 main = "Frequency of Total Steps Per Day",
+                 xlab = "Total Steps")
+```
+
+```{r meanandmedian, echo=FALSE}
+mean <- mean(totsteps$sum)
+median <- median(totsteps$sum)
+```
+This subject appears to take many more steps than the average of 5,116 for an American - source: [*NY Tmes*](http://well.blogs.nytimes.com/2010/10/19/the-pedometer-test-americans-take-fewer-steps/?_r=0). In fact, this subject took an average of **`r mean`** steps each day with a median of **`r median`** steps.
 
 ## What is the average daily activity pattern?
 
