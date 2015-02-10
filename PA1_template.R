@@ -9,7 +9,7 @@ data <- read.csv("activity.csv", header=T)
 library(dplyr)
 library(tidyr)
 
-data[,2] <- as.Date(data[,2], "%Y%m%d")
+data[,2] <- as.Date(data[,2], "%Y-%m-%d")
 
 #calculatings total steps each day and making a histogram
 totsteps <- data %>%
@@ -44,8 +44,34 @@ row <- intervalavg[intervalavg$avg == max,]
 #impute the data for the na values using the average for ecah 
 #5-min interval
 
-for (i in 1:nrow(data)) {
+for (i in 1:nrow(data2)) {
       if (is.na(data2[i,1]) == TRUE) {
-            data2[i, 1] <- intervalavg[i,2]
-      }
+            x <- data2[i,3]
+            y <- filter(intervalavg, interval == x)
+            data2[i,1] <- y[1,2]
+      } else next
 }
+
+#create a weekeday/weekend variable and add to the data frame
+
+data2 <- mutate(data2, day=weekdays(date))
+
+data2[,"day"] <- gsub("Saturday", "weekend", data2$day)
+data2[,"day"] <- gsub("Sunday", "weekend", data2$day)
+data2[,"day"] <- gsub("Monday", "weekday", data2$day)
+data2[,"day"] <- gsub("Tuesday", "weekday", data2$day)
+data2[,"day"] <- gsub("Wednesday", "weekday", data2$day)
+data2[,"day"] <- gsub("Thursday", "weekday", data2$day)
+data2[,"day"] <- gsub("Friday", "weekday", data2$day)
+
+byday <- data2 %>%
+      group_by(day, interval) %>%
+      summarise(avg=mean(steps))
+
+#plot the results in a time-series
+library(ggplot2)
+qplot(interval,
+      avg,
+      data=byday,
+      facets= . ~ day,
+      geom="line")
