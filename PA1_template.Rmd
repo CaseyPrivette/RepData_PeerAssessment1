@@ -61,14 +61,44 @@ stephist <- hist(totsteps$sum,
 mean <- mean(totsteps$sum)
 median <- median(totsteps$sum)
 ```
-This subject appears to take many more steps than the average of 5,116 for an American - source: [*NY Tmes*](http://well.blogs.nytimes.com/2010/10/19/the-pedometer-test-americans-take-fewer-steps/?_r=0). In fact, this subject took an average of **`r mean`** steps each day with a median of **`r median`** steps.
+###Mean and median number of steps
+This subject took an average of **`r mean`** steps each day with a median of **`r median`** steps. This is many more steps than the average of 5,116 for an American - source: [*NY Tmes*](http://well.blogs.nytimes.com/2010/10/19/the-pedometer-test-americans-take-fewer-steps/?_r=0).  
 
 ## What is the average daily activity pattern?
 
+Now I'll take a look the average number of steps across all days by summarizing the number of steps for each interval over all days again using the group_by and summarise functions in dplyr. I'll then plot the table in a time-series graph using the base plotting system in R.  
+```{r avgstepsbyinterval, cache=TRUE}
+intervalavg <- data %>%
+      group_by(interval) %>%
+      summarise(avg=mean(steps, na.rm=TRUE))
 
+plot(intervalavg$interval,
+     intervalavg$avg,
+     type="l",
+     col="purple",
+     lwd=2,
+     main="Average Steps For Each 5-Minute Interval",
+     xlab="Average Steps",
+     ylab="Interval")
+```
+
+```{r maxinterval, echo=FALSE}
+max <- max(intervalavg$avg)
+row <- intervalavg[intervalavg$avg == max,]
+```
+###What time do the most steps tend to occur?  
+The maximum average steps (**`r max`**) occur at the **`r row$interval`** interval.  
 
 ## Imputing missing values
+Now I'll address the NA values in the raw data. We'll take the averages we calculated for each 5-minute interval above and use those as an estimate of the missing values. I'll write a short for loop to replace the NA's.
 
-
+```{r replaceNAs, cache=TRUE}
+for (i in 1:nrow(data)) {
+      if (is.na(data[i,1]) == TRUE) {
+            data[i, 1] <- intervalavg[i,2]
+      }
+}
+head(data)
+```
 
 ## Are there differences in activity patterns between weekdays and weekends?

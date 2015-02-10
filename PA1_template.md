@@ -90,14 +90,56 @@ stephist <- hist(totsteps$sum,
 ![](./PA1_template_files/figure-html/totstepshistogram-1.png) 
 
 
-This subject appears to take many more steps than the average of 5,116 for an American - source: [*NY Tmes*](http://well.blogs.nytimes.com/2010/10/19/the-pedometer-test-americans-take-fewer-steps/?_r=0). In fact, this subject took an average of **9354.2295082** steps each day with a median of **10395** steps.
+###Mean and median number of steps
+This subject took an average of **9354.2295082** steps each day with a median of **10395** steps. This is many more steps than the average of 5,116 for an American - source: [*NY Tmes*](http://well.blogs.nytimes.com/2010/10/19/the-pedometer-test-americans-take-fewer-steps/?_r=0).  
 
 ## What is the average daily activity pattern?
 
+Now I'll take a look the average number of steps across all days by summarizing the number of steps for each interval over all days again using the group_by and summarise functions in dplyr. I'll then plot the table in a time-series graph using the base plotting system in R.  
 
+```r
+intervalavg <- data %>%
+      group_by(interval) %>%
+      summarise(avg=mean(steps, na.rm=TRUE))
+
+plot(intervalavg$interval,
+     intervalavg$avg,
+     type="l",
+     col="purple",
+     lwd=2,
+     main="Average Steps For Each 5-Minute Interval",
+     xlab="Average Steps",
+     ylab="Interval")
+```
+
+![](./PA1_template_files/figure-html/avgstepsbyinterval-1.png) 
+
+
+###What time do the most steps tend to occur?  
+The maximum average steps (**206.1698113**) occur at the **835** interval.  
 
 ## Imputing missing values
+Now I'll address the NA values in the raw data. We'll take the averages we calculated for each 5-minute interval above and use those as an estimate of the missing values. I'll write a short for loop to replace the NA's.
 
+
+```r
+for (i in 1:nrow(data)) {
+      if (is.na(data[i,1]) == TRUE) {
+            data[i, 1] <- intervalavg[i,2]
+      }
+}
+head(data)
+```
+
+```
+##       steps       date interval
+## 1 1.7169811 2012-10-01        0
+## 2 0.3396226 2012-10-01        5
+## 3 0.1320755 2012-10-01       10
+## 4 0.1509434 2012-10-01       15
+## 5 0.0754717 2012-10-01       20
+## 6 2.0943396 2012-10-01       25
+```
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
