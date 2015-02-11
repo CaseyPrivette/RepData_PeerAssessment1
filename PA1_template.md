@@ -61,23 +61,37 @@ data[,2] <- as.Date(data[,2], "%Y-%m-%d")
 
 To create a summary of the total number of steps taken per day I'll load dplyr and use the group_by and summarise functions to create a new data frame totsteps.
 
-
 ```r
 require(dplyr)
+```
+
+```
+## Loading required package: dplyr
+## 
+## Attaching package: 'dplyr'
+## 
+## The following object is masked from 'package:stats':
+## 
+##     filter
+## 
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 totsteps <- data %>%
       group_by(date) %>%
-      summarise(sum=sum(steps, na.rm=TRUE))
+      summarise(sumsteps=sum(steps, na.rm=TRUE))
 ```
 
 Now I'll show the results on a histogram.
 
 
 ```r
-stephist <- hist(totsteps$sum,
-                 breaks=5,
-                 col="light blue",
-                 main = "Frequency of Total Steps Per Day",
-                 xlab = "Total Steps")
+require(ggplot2)
+stephist <- ggplot(totsteps, aes(x=sumsteps))
+stephist + geom_histogram(binwidth=2119, aes(fill=..count..))
 ```
 
 ![](./PA1_template_files/figure-html/totstepshistogram-1.png) 
@@ -101,13 +115,8 @@ intervalavg <- data %>%
       group_by(interval) %>%
       summarise(avg=mean(steps, na.rm=TRUE))
 
-plot(intervalavg$interval,
-     intervalavg$avg,
-     type="l",
-     col="purple",
-     lwd=2,
-     main="Average Steps For Each 5-Minute Interval",
-     xlab="Average Steps",
+plot(intervalavg$interval, intervalavg$avg, type="l", col="purple", lwd=2,
+     main="Average Steps For Each 5-Minute Interval", xlab="Average Steps",
      ylab="Interval")
 ```
 
@@ -157,13 +166,10 @@ Now I'll rerun the code to summarize the total steps per day and make a new hist
 ```r
 totsteps2 <- data %>%
       group_by(date) %>%
-      summarise(sum=sum(steps))
+      summarise(sumsteps=sum(steps))
 
-hist(totsteps2$sum,
-                 breaks=5,
-                 col="dark blue",
-                 main = "Frequency of Total Steps Per Day",
-                 xlab = "Total Steps")
+stephist2 <- ggplot(totsteps2, aes(x=sumsteps))
+stephist2 + geom_histogram(binwidth=2119, aes(fill=..count..))
 ```
 
 ![](./PA1_template_files/figure-html/moretotalsteps-1.png) 
@@ -211,9 +217,10 @@ byday <- data %>%
 Now I'll plot the data in a time-series using the ggplot2 package with two panels to see if there are differences in the pattern for weekdays and weekends.
 
 ```r
-library(ggplot2)
 qplot(interval, avg, data=byday, facets= day ~ .,
       geom="line", ylab="Number of steps", xlab="Interval")
 ```
 
 ![](./PA1_template_files/figure-html/wkdaywkendplot-1.png) 
+
+It appears that on weekdays the subject begins moving earlier on weekdays with a large spike in the number of steps around 8 am then the remainder of steps are spread fairly evenly throughout the day. On weekends there is a small spike between 8 and 9 am then the remainder of the steps seem spread fairly evenly throughout the rest of the day.
